@@ -49,7 +49,7 @@
 											         			<?php
 											         		}
 											         	?>
-													 	<a class="dropdown-item" href="#">Stop following</a>
+													 	<a class="dropdown-item" href="<?=site_url('user/HomeC/follow/'.$p->ownerData->user_id.'/'.$p->ownerData->username.'/1')?>">Stop following</a>
 													 	<a class="dropdown-item reportDropdown" href="#reportModal" data-toggle="modal" data-pid="<?=$p->photo_id?>" data-rid="<?=$p->ownerData->user_id?>">Report</a>
 					            					</div>
 					           				 	</div><!--/ dropdown -->
@@ -59,8 +59,8 @@
 								 						<a href="<?=site_url("user/HomeC/loadProfile/")?><?=$p->ownerData->username?>"><img class="img-responsive img-circle" src="<?php echo base_url()?>resources/user/uploadPhotos/profile/<?=$p->ownerData->user_profile_pic?>" alt="User"></a>
 													</div>
 					            					<div class="media-body">
-													<a href="<?=site_url("user/HomeC/loadProfile/")?><?=$p->ownerData->username?>"><p class="m-0"><?=$p->ownerData->username?></p></a>
-														<small><span><?=$p->photo_date;?></span></small>
+													<a href="<?=site_url("user/HomeC/loadProfile/")?><?=$p->ownerData->username?>"><p class="m-0" style="font-size:20px;"><?=$p->ownerData->username?></p></a>
+														<small><span style="font-size:18px;"><?=$p->photo_date;?></span></small>
 					            					</div>
 					           					</div><!--/ media -->
 					          				</div><!--/ cardbox-heading -->
@@ -125,10 +125,9 @@
 								</button><!--/ button -->
             					<div class="img-poster clearfix">
 	             					<a href="#"><img class="img-responsive img-circle" id="uprofile" src="" alt="Image"/></a>
-	             					<strong><a href="#" id="uname"></a></strong>
-	             					<span id="dt"></span><br/>
-			     					<a href="#" class="kafe kafe-btn-mint-small"><i class="fa fa-check-square"></i> Following</a>
-	            				</div><!--/ img-poster -->
+	             					<strong><a href="#" id="uname" style="font-size:20px;"></a></strong>
+	             					<span id="dt"style="font-size:18px;"></span><br/>
+			     				</div><!--/ img-poster -->
 			  
 	            				<ul class="img-comment-list" id="commentBody">
 	             					<?php

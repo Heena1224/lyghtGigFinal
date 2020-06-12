@@ -13,7 +13,7 @@ if($exploreUsers!=null)
 			<a href="<?=site_url('user/HomeC/loadProfile/'.$ul->userData->username)?>"><h4><?=$ul->userData->user_fname." ".$ul->userData->user_lname?></h4></a>
 				<span>@<?= $ul->userData->username?></span>
 			</div>
-			<span><i class="fa fa-plus"></i></span>			
+			<span><a href="<?=site_url('user/HomeC/follow/'. $ul->userData->user_id.'/'.$ul->userData->username.'/0')?>"><i class="fa fa-plus"></i></a></span>			
 		 </div>		
 		<?php
 			if($ul->mostLikedPhotos!=null)

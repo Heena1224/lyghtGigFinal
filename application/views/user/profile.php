@@ -107,7 +107,7 @@
 		     		}	
 		     	?>
 		     </h4>
-             <p style="font-size: 22px;font-style:normal; "><?=$userData->user_description?>
+             <p style="font-size: 22px;font-style:normal; "><?=$userData->user_description?><br><br>
              	<?php
              		if($userData->typeData!=null)
              		{
@@ -224,7 +224,7 @@
 							        <div class="cardbox-item">
 							        	
 
-									 	<a href="#myModal" class="image" data-toggle="modal" data-photo="<?= $p->photo_path;?>" data-pid="<?= $p->photo_id?>" data-cmtcount="<?=$p->totalComments?>" data-dt="<?= $p->photo_date;?>" data-userid="<?= $p->user_id?>" data-cap="<?= $p->photo_caption;?>" data-isliked="<?=$p->isLiked?>">
+									 	<a href="#myModal" class="image" data-toggle="modal" data-photo="<?= $p->photo_path;?>" data-pid="<?= $p->photo_id?>" data-cmtcount="<?=$p->totalComments?>" data-likecount="<?=$p->totalLikes?>" data-dt="<?= $p->photo_date;?>" data-userid="<?= $p->user_id?>" data-cap="<?= $p->photo_caption;?>" data-isliked="<?=$p->isLiked?>">
 									 		<div class="explorebox" 
 									   			style="background: linear-gradient( rgba(34,34,34,0.2), rgba(34,34,34,0.2)), url('<?php echo base_url()?>resources/user/uploadPhotos/<?php echo $p->photo_path?>') no-repeat;
 											  		background-size: cover;
@@ -333,7 +333,7 @@
 		    $(".modal-body #dt").text($(this).data("dt"));
 		    $(".modal-body #cap").text($(this).data("cap"));
 		    $(".modal-body #cmtCount").text($(this).data("cmtcount"));
-		     
+		    $(".modal-body #likeCount").text($(this).data("likecount"));		     
 		    $.ajax({type:'POST', url: "<?= site_url("user/HomeC/getComments/")?>",data:{photo_id:pid}, success: function(result){
 		    $(".modal-body #commentBody").empty();
 		    let commentData=JSON.parse(result);

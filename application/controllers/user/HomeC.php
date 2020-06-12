@@ -28,7 +28,8 @@ class HomeC extends CI_Controller
         $temp=array(
             "exploreUsers"=>$exploreUsers,
             "postData"=>$postData,
-            "reportData"=>$reportData
+            "reportData"=>$reportData,
+            "competitionData"=>$this->pm->getCompetitionData(5)
         );
 		$this->load->view("user/home.php",$temp);
 	}
@@ -50,7 +51,7 @@ class HomeC extends CI_Controller
         $uid=$this->um->fetchUserID($uname);
         if($uid==null)
         {
-            redirect("user/HomeC/loadProfile/");
+            redirect("user/HomeC");
         }
         $userData=$this->um->getUserData($uid);
         $userData->typeData=$this->um->getTypeData($uid);
@@ -80,7 +81,9 @@ class HomeC extends CI_Controller
    {
         $user=$this->um->getUserData($this->session->userdata("user_id"));
         $temp=array(
-             "user"=>$user
+             "user"=>$user,
+             "typeData"=>$this->um->getTypeData(),
+             "curTypeData"=>$this->um->getTypeData($this->session->userdata("user_id"))
          );
        //print_r($user);
        $this->load->view("user/editProfile.php",$temp);
@@ -107,11 +110,13 @@ class HomeC extends CI_Controller
         "user_address"=>$this->input->post("txtAddress"),
         "user_description"=>$this->input->post("txtDescription")
     );
+    $types=$this->input->post("types");
+    $type_array=explode(',',$types);
    $email=array( 
     "user_email"=>$this->input->post("txtEmail")
     ); 
         
-       $this->um->changeEditProfile($this->session->userdata("user_id"),$data,$email);
+       $this->um->changeEditProfile($this->session->userdata("user_id"),$data,$email,$type_array);
        //print_r($data);
        redirect("user/HomeC/loadEditProfile");
    }
@@ -160,7 +165,32 @@ class HomeC extends CI_Controller
             }
 		}
 
+    public function search()
+    {
+        $key=$this->input->post("txtSearch");
+        $userData=$this->um->searchUsers($key);
+        
+    }
+    public function addWinners(){
+        $winner_id=$this->input->post("txtWinner");
+        $runner_id=$this->input->post("txtRunner");
+        $cid=$this->input->post("txtCid");
+        if($this->um->checkSubmissionID($winner_id,$cid) && $this->um->checkSubmissionID($runner_id,$cid) && ($winner_id!=$runner_id))
+        {   
+            $this->um->addWinners($winner_id,$runner_id,$cid);
+            $error="Winners have been announced successfully.!";
+        }
+        else{
+            $error="Please enter valid WinnerID/Runner UP ID";
+        }
+        $temp=array(
+            "contestData"=>$this->pm->getUserContestData($this->session->userdata("user_id")),
+            "error"=>$error
+		);
+		//$submissions=$this->pm->getUserSubmission($this->session->user_id);
+		$this->load->view("user/contestMaster.php",$temp);		
 
+    }
 	public function changeProfilePic()
     {
         if(!empty($this->input->post("btnChangeProfile")))
@@ -175,17 +205,24 @@ class HomeC extends CI_Controller
 
             if(!$this->upload->do_upload('userProfile'))
             {
-                $error=array("error"=>$this->upload->display_errors());
+                $error=$this->upload->display_errors();
             }
             else
             {
                 $t=$this->upload->data('file_name');
                 $this->um->updateProfilePic($this->session->userdata("user_id"),$t);
                 $this->session->set_userdata("user_profile_pic",$t);
-                $error=array("error"=>"Photo uploaded Successfully!!");
+                $error="Photo uploaded Successfully!!";
             }
             $this->output->delete_cache();
-          $this->load->view("user/editProfile.php",$error);
+            $temp=array(
+                "user"=>$this->um->getUserData($this->session->userdata("user_id")),
+                "error"=>$error,
+                "typeData"=>$this->um->getTypeData(),
+                "curTypeData"=>$this->um->getTypeData($this->session->userdata("user_id"))
+            );
+            
+          $this->load->view("user/editProfile.php",$temp);
         }
         else
         {
@@ -313,7 +350,8 @@ class HomeC extends CI_Controller
    {
        $albumData=$this->um->getAlbumData($this->session->userdata('user_id'));
        $temp=array(
-           "albumData"=>$albumData
+           "albumData"=>$albumData,
+           "catData"=>$this->um->getCatData()
        );
         $this->load->view("user/upload.php",$temp);
    }

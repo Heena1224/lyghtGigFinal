@@ -103,12 +103,17 @@
 	             						
 	             					</button>
 		             				<?php
-		             					if($cdt>$contestDetails->start_date && $is_a_participant==1 && $cdt<$contestDetails->end_date)
+		             					if($cdt>$contestDetails->start_date && $is_a_participant==1 && $cdt<$contestDetails->end_date &&$has_submission==0)
 		             					{
 		             						?><br><br><br>
 		             						<a href="#participateModal" data-toggle="modal"><button class="kafe-btn kafe-btn-mint-small pull-right btn-sm" id="btnUploadPhoto" style="width: 100%;height: 7%;font-size:24px;font-family:'Abhaya Libre';"> Submit Your Photo</button></a>
 		             						<?php
-		             					}
+										 }
+										 else if($has_submission==1){
+											?><br><br><br>
+											<a href="#!"><button class="kafe-btn kafe-btn-mint-small pull-right btn-sm" style="width: 100%;height: 7%;font-size:24px;font-family:'Abhaya Libre';"> You have already submitted your photo</button></a>
+											<?php
+										 }
 		             				?>	             					
 	             				</p>
 
@@ -132,8 +137,8 @@
 
         		<div class="menu-category">
          			<ul class="menu">
-          				<li style="font-size: 22px;font-style:normal; "><b><i class="fa fa-users" style="color:#0fc19e;"></i>&nbsp;<span><?=$contestDetails->totalParticipants?></span>Photographers Registered</b></li>
-          				<li style="font-size: 22px;font-style:normal; "><b><i class="fa fa-camera" style="color:#0fc19e;"></i>&nbsp;<span><?=$contestDetails->totalPhotos?></span>Photos Entered</b></li>
+          				<li><i class="fa fa-users" style="color:#0fc19e;"></i>&nbsp;<span><?=$contestDetails->totalParticipants?></span>Photographers Registered</li>
+          				<li><i class="fa fa-camera" style="color:#0fc19e;"></i>&nbsp;<span><?=count($submissionData)?></span>Photos Entered</li>
           				
          			</ul>
 				</div>
@@ -141,57 +146,52 @@
 	   		</div><!--/row -->
       	</div><!--/container -->
     </section>
-
+	<section class="newsfeed">
+	  	<div class="container">
+		  <div class="row" id="loadingContainer">
+		  <?php
+						if($submissionData!=null)
+						{
+							foreach ($submissionData as $s) {
+								?>
+									<div class="col-lg-4">
+										<!--/ cardbox-heading -->
+										<div class="cardbox-item">
+											
+	
+											 <a href="#myModal" class="image" data-toggle="modal">
+												 <div class="explorebox" 
+													   style="background: linear-gradient( rgba(34,34,34,0.2), rgba(34,34,34,0.2)), url('<?php echo base_url()?>resources/shared/images/<?php echo $s->photo_path?>') no-repeat;
+														  background-size: cover;
+														  background-position: center center;
+														  -webkit-background-size: cover;
+														  -moz-background-size: cover;
+														  -o-background-size: cover;">
+												 </div>
+											 </a>
+										  </div>
+									</div>
+								<?php
+								
+							}
+						}
+		  
+		  ?>
+		  </div>
+		</div>
+	</section>
+			
 	 <!-- ==============================================
 	 News Feed Section
 	 =============================================== --> 
 
-	<section class="stories">
+	<section class="newsfeed">
 	  	<div class="container">
-	  		<div class="row">
-	  			<div class="col-lg-12" style="width: 100%;">
-	  				<center>
-	  					<label class="label label-danger " style="font-size: 30px;font-family:'Helvetica';" >All entries so far</label>
-	  					
-	  				</center>
-	  			</div>
-	  		</div>
-	   		<div class="row">
-   			<?php
-   				if($photoDetails!=null)
-   				{
-   					foreach ($photoDetails as $key) 
-   					{
-   						?>
-   						<div class="col-lg-4">
-		 			<a href="#">
-		 				<div class="storybox" 
-		   					style="background: linear-gradient( rgba(34,34,34,0.78), rgba(34,34,34,0.78)), url('<?= base_url().'resources/shared/images/'?><?php echo $key->photo_path;?>') no-repeat;
-						          background-size: cover;
-				                  background-position: center center;
-				                  -webkit-background-size: cover;
-				                  -moz-background-size: cover;
-				                  -o-background-size: cover;">
-          					<div class="story-body text-center">
-           						<h2 style="font-family:'Abhaya Libre';"></h2>
-           						
-          					</div>		  
-		 				</div>
-		 			</a>
-				</div> 
-   						<?php
-   					}
-   				}
-   				else{
-   					?>
-   						<label>No EntriesSubmitted Yet</label>
-   					<?php
-   				}
-	   		?>	
-   				
-   				
-	   		</div>
-	 
+	  		
+	   		<div class="row" id="loadingContainer">
+	   
+	    	
+	   		</div><!--/ row -->
 	   
 	  	</div><!--/ container -->
 	</section><!--/ newsfeed -->
@@ -244,7 +244,9 @@
     	 $("#btnParticipate").click(function() {
 
     	 	$.ajax({type:'POST', url: "<?= site_url("user/PhotoC/addParticipant/")?>",data:{contest_id:"<?=$contestDetails->competition_id?>"},success: function(result){
-    			alert(result);
+    			if(result!="")
+				alert(result+" Once the contest starts, you can submit your entry.!");
+				
   		}});
     	 })
     </script>

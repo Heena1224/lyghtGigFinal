@@ -39,14 +39,22 @@ class PhotoC extends CI_Controller
 	{
 		$sortOption=-1;
 		$cats=null;
+		$types_array=null;
 		if(!empty($this->input->post("btnSearch")))
 		{
 			$sortOption=$this->input->post("lstSort");
+			if($this->input->post("types")!="")
+			{
+				$types=$this->input->post("types");
+				$types_array=explode(',',$types);
+			}
+			
+
 
 		}
 		//$exploreUsers=$this->pm->getUserData($this->session->userdata("user_id"));
 		$exploreUsers=$this->pm->getMostFollowedUsers($this->session->userdata("user_id"));
-		$photoData=$this->pm->getAllPhotoData($sortOption);
+		$photoData=$this->pm->getAllPhotoData($sortOption,$types_array);
 
 		//print_r($photoData);
 		 $reportData=$this->um->getReportData();
@@ -56,7 +64,8 @@ class PhotoC extends CI_Controller
 			"exploreUsers"=>$exploreUsers,
 			"photoData"=>$photoData,
 			"reportData"=>$reportData,
-			"category"=>$category
+			"category"=>$category,
+			"catData"=>$this->um->getCatData()
 		);
 		//print_r($photoData);
 		$this->load->view("user/explore.php",$temp);
@@ -92,51 +101,59 @@ class PhotoC extends CI_Controller
 	}
 	public function upload()
 	{
-		$filename=$_FILES['imgFile']['name'];
-		$caption=$_POST['caption'];
-		$pt=$_POST['photo_type'];
-		$cropData=json_decode($_POST['cropData']);
-		$aid=$_POST["album_id"];
-		echo $aid;
-		$location=$_SERVER['DOCUMENT_ROOT']."/lyghtgig/resources/user/uploadPhotos/";
-		$uploadOk=1;
-		$imageFileType=pathinfo($location.$filename,PATHINFO_EXTENSION);
-		$valid_extensions=array("jpg","jpeg","png");
-		if(!in_array(strtolower($imageFileType),$valid_extensions))
+		if(isset($_FILES['imgFile']['name']))
 		{
-			$uploadOk=0;
-		}
-		if($uploadOk==0)
-		{
-			echo $uploadOk;
-		}
-		else{
-			date_default_timezone_set("Asia/Kolkata");
-			$newFname=$this->session->userdata("username").date("d_m_y_h_i_s").".".strtolower($imageFileType);
-			if(move_uploaded_file($_FILES['imgFile']['tmp_name'],$location.$newFname))
+			$filename=$_FILES['imgFile']['name'];
+			$caption=$_POST['caption'];
+			$pt=$_POST['photo_type'];
+			$cats=$_POST['cats'];
+			$cat_array=null;
+			if($cats!="")
+			{$cat_array=explode(',',$cats);}
+			$cropData=json_decode($_POST['cropData']);
+			$aid=$_POST["album_id"];
+			$location=$_SERVER['DOCUMENT_ROOT']."/lyghtGigFinal/resources/user/uploadPhotos/";
+			$uploadOk=1;
+			$imageFileType=pathinfo($location.$filename,PATHINFO_EXTENSION);
+			$valid_extensions=array("jpg","jpeg","png");
+			if(!in_array(strtolower($imageFileType),$valid_extensions))
 			{
-				$im=imagecreatefromjpeg($location.$newFname);
-				$im3=imagecreatetruecolor($cropData->width,$cropData->height);
-					header("Content-type: image/png");
-					imagecopy($im3,$im,0,0,$cropData->x,$cropData->y,$cropData->width,$cropData->height);
-					imagepng($im3,$location.$newFname);
-					imagedestroy($im3);
-					imagedestroy($im);
-					$data=array(
-						"photo_caption"=>$caption,
-						"user_id"=>$this->session->userdata("user_id"),
-						"photo_path"=>$newFname,
-						"album_id"=>$aid,
-						"photo_type"=>$pt
-					);
-					$this->pm->upload($data);
-					echo $uploadOk;
-
+				$uploadOk=0;
 			}
-			else{
+			if($uploadOk==0)
+			{
 				echo $uploadOk;
 			}
+			else{
+				date_default_timezone_set("Asia/Kolkata");
+				$newFname=$this->session->userdata("username").date("d_m_y_h_i_s").".".strtolower($imageFileType);
+				if(move_uploaded_file($_FILES['imgFile']['tmp_name'],$location.$newFname))
+				{
+					$im=imagecreatefromjpeg($location.$newFname);
+					$im3=imagecreatetruecolor($cropData->width,$cropData->height);
+						header("Content-type: image/png");
+						imagecopy($im3,$im,0,0,$cropData->x,$cropData->y,$cropData->width,$cropData->height);
+						imagepng($im3,$location.$newFname);
+						imagedestroy($im3);
+						imagedestroy($im);
+						$data=array(
+							"photo_caption"=>$caption,
+							"user_id"=>$this->session->userdata("user_id"),
+							"photo_path"=>$newFname,
+							"album_id"=>$aid,
+							"photo_type"=>$pt,
+						);
+						$this->pm->upload($data,$cat_array);
+						echo $uploadOk;
+	
+				}
+				else{
+					echo $uploadOk;
+				}
+			}		
 		}
+		else
+			echo 0;
 	}
 
 
@@ -156,9 +173,11 @@ class PhotoC extends CI_Controller
 		$temp=array(
 			"contestDetails"=>$contestDetails,
 			"is_a_participant"=>$this->pm->checkParticipant($this->session->userdata('user_id'),$contest_id),
-			"photoDetails"=>$this->pm->getContestPhotos($contest_id)
+			"submissionData"=>$this->pm->getSubmissionData($contest_id),
+			"has_submission"=>$this->pm->checkSubmission($this->session->userdata('user_id'),$contest_id)
+
 		);
-		//print_r($temp["photoDetails"]);
+		//print_r($temp);
 		$this->load->view("user/contestDetails.php",$temp);
 
 	}
@@ -167,7 +186,7 @@ class PhotoC extends CI_Controller
 		if($this->input->post("btnCreate")!="")
 		{
 			$img=$_FILES['photoCover']['name'];
-		copy($_FILES['photoCover']['tmp_name'],$_SERVER['DOCUMENT_ROOT']."/lyghtgig/resources/shared/images/competition_cover/".$img)or die($_FILES['photoCover']['error']);
+		copy($_FILES['photoCover']['tmp_name'],$_SERVER['DOCUMENT_ROOT']."/lyghtGigFinal/resources/shared/images/competition_cover/".$img)or die($_FILES['photoCover']['error']);
 			$data=array(
 
 			"competition_name"=>$this->input->post("txtCName"),
@@ -206,14 +225,22 @@ class PhotoC extends CI_Controller
 	public function submitPhoto($contest_id)
 	{
 		$img=$_FILES['photoContestPic']['name'];
-		copy($_FILES['photoContestPic']['tmp_name'],$_SERVER['DOCUMENT_ROOT']."/lyghtgig/resources/shared/images/".$img)or die($_FILES['photoContestPic']['error']);
+		copy($_FILES['photoContestPic']['tmp_name'],$_SERVER['DOCUMENT_ROOT']."/lyghtGigFinal/resources/shared/images/".$img)or die($_FILES['photoContestPic']['error']);
 		$data = array(
 			"participant_id" =>$this->pm->getParticipantId($this->session->userdata("user_id"),$contest_id),
 			"photo_path"=>$img,
-			"photo_caption"=>$this->input->post("txtCaption")
+			"photo_caption"=>$this->input->post("txtCaption"),
+			"competition_id"=>$contest_id
 		);
 		//print_r($data);
 		$this->pm->submitPhoto($data);
 		redirect("user/PhotoC/loadContestDetails/".$contest_id);
+	}
+	public function contestMaster(){
+		$temp=array(
+			"contestData"=>$this->pm->getUserContestData($this->session->userdata("user_id"))
+		);
+		//$submissions=$this->pm->getUserSubmission($this->session->user_id);
+		$this->load->view("user/contestMaster.php",$temp);		
 	}
 }

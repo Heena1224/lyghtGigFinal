@@ -47,51 +47,59 @@
 	 <!-- ==============================================
 	 Header Section  user/UserC/addUser
 	 =============================================== -->
-   	<section class="login" style="background:none;margin-top: none;">
+   	<section class="login" style="background:none;">
       	<div class="container">
-       		<div class="banner-content" style="width: 100%;margin-top: none;">
-		 		<h1>New User on <?php echo $title;?>?</h1><br>
-		  			<form method="post" class="form-signin" enctype="multipart/form-data" action="<?php echo site_url("user/UserC/addUser")?>" style="max-width:100%;font-size: 12px;">
+       		<div class="banner-content" style="width: 100%;">
+		 		<h1><i class="fa fa-camera"></i><?php echo $title;?></h1>
+		  			<form method="post" id="frmSignIn" class="form-signin" enctype="multipart/form-data" action="<?php echo site_url("user/UserC/addUser")?>" style="max-width:100%;">
+		   				<h3 class="form-signin-heading">Please register</h3>
 		   				<div class="form-group row">
-		   					
-								<input name="txtUsername" type="text" class="form-control" placeholder="User Name" required="ENter your Username">
-							
+		   					<label class="col-sm-4 col-form-label">Username:</label>
+		   					<div class="col-sm-8">
+								<input name="txtUsername" type="text" class="form-control" placeholder="User Name" required>
+							</div>
 		   				</div>
 		   				<div class="form-group row">
-		   					
-								<input name="txtFname" type="text" class="form-control" placeholder="First Name">
-							
+		   					<label class="col-sm-4 col-form-label">First Name:</label>
+		   					<div class="col-sm-8">
+								<input name="txtFname" type="text" class="form-control" placeholder="First Name" required>
+							</div>
 		   				</div>
 		   				<div class="form-group row">
-		   					
-		    					<input name="txtLname" type="text" class="form-control" placeholder="Last Name">
-		    				
+		   					<label class="col-sm-4 col-form-label">Last Name:</label>
+		   					<div class="col-sm-8">
+		    					<input name="txtLname" type="text" class="form-control" placeholder="Last Name" required>
+		    				</div>
 		   				</div>
 		   				<div class="form-group row">
-		   						
+		   					<label class="col-sm-4 col-form-label">Gender</label>
+		   					<div class="col-sm-8 row">
 		   						<div class="col-sm-6">
-			    					<input name="radioGender" type="radio" class="form-control" value="Male">Male
+			    					<input name="radioGender" type="radio" class="form-control" value="Male" required>Male
 			    				</div>
 			    				<div class="col-sm-6">
 			    					<input name="radioGender" type="radio" class="form-control" value="Female">Female
 			    				</div>
-			  				
+			    			</div>
 		   				</div>
 		   				<div class="form-group row">
-		   					
-		    					<input name="dateBdate" type="date" class="form-control">
-		    			
+		   					<label class="col-sm-4 col-form-label">Birthdate:</label>
+		   					<div class="col-sm-8">
+		    					<input name="dateBdate" type="date" class="form-control" required>
+		    				</div>
 		   				</div>
 		   				<div class="form-group row">
-		   					
-		    					<input name="txtEmail" type="mail" class="form-control" placeholder="Enter Your Email Here">
-		    			
+		   					<label class="col-sm-4 col-form-label">Email:</label>
+		   					<div class="col-sm-8">
+		    					<input name="txtEmail" id="email" type="mail" class="form-control" placeholder="Email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2, 4}$">
+		    				</div>
 		   				</div>
 		   				<div class="form-group row">
-		   					
-			   					<textarea name="txtAddress" class="form-control" placeholder="Enter your Address">
+		   					<label class="col-sm-4 col-form-label">Address:</label>
+		   					<div class="col-sm-8">
+			   					<textarea name="txtAddress" class="form-control" placeholder="Address" required>
 			   					</textarea>
-			   		
+			   				</div>
 		   				</div>
 		   				<!-- <div class="form-group">
 		    				<select name="selectStatus">
@@ -100,12 +108,12 @@
 		    					<option value="Disabled">Disabled</option>
 		   				</div> -->
 		   				<div class="form-group row">
-		   				
-		   						<input type="file" accept="image/*" name="photoProfile" id="file" style="display: none;">
-								<p class="kafe-btn kafe-btn-mint-small pull-right btn-sm" style="width:100%"><label for="file" style="cursor: pointer;width:100%;">Select Profile Image</label></p>
-		   					
+		   					<label class="col-sm-4 col-form-label">Profile Pic:</label>
+		   					<div class="col-sm-8">
+		   						<input type="file" name="photoProfile" class="form-control">
+		   					</div>
 		   				</div>
-		   				<button class="kafe-btn kafe-btn-mint btn-block" type="submit" name="submit" style="width:100%; ">Sign Up</button>
+		   				<button class="kafe-btn kafe-btn-mint btn-block" type="submit" name="subm">Sign Up</button>
 		   				<br/>
 						<a class="btn btn-dark " href="<?php echo site_url("user/UserC")?>" role="button">Already have an account? Click Here.</a>
 						
@@ -115,6 +123,7 @@
       	</div><!-- /.container -->
     </section> 
   
+
 	 <script type="text/javascript">
 	 	<?php 
 	 		if(isset($error)&& !empty($error))
@@ -124,7 +133,8 @@
 	 			alert(err);
 	 			<?php
 	 		}
-	 	?>
+		 ?>
+
 	 </script>
 	 
      <!-- ==============================================
@@ -133,7 +143,22 @@
 	<script src="<?php echo base_url()?>resources/user/assets/js/jquery.min.js"></script>
 	<script src="<?php echo base_url()?>resources/user/assets/js/bootstrap.min.js"></script>
 	<script src="<?php echo base_url()?>resources/user/assets/js/base.js"></script>
+	<script>
+			/*$("#frmSignIn").submit(function(e){
+				var VAL = $("#email").val();
+				alert(VAL);
 
+				var email = new RegExp("/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i");
+
+				if (email.test(VAL)) {
+
+				}
+				else{
+					alert("Enter a valid email.!");
+					return false;
+				}
+			});*/
+	</script>
   </body>
 
 </html>

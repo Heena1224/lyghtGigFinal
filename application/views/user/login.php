@@ -35,7 +35,12 @@
 		Feauture Detection
 		=============================================== -->
 		<script src="<?php echo base_url()?>resources/user/assets/js/modernizr-custom.html"></script>
-	
+
+		<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+		<!--[if lt IE 9]>
+		  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+		  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+		<![endif]-->	
 		
 		
   </head>
@@ -50,7 +55,7 @@
        <div class="banner-content">
 	   
 		  <h1><i class="fa fa-camera"></i><?php echo $title?></h1>
-		  <form method="post" class="form-signin" enctype="multipart/form-data" action="<?php echo site_url("user/UserC/validateLogin")?>">
+		  <form method="post" id="frmLogin" class="form-signin" enctype="multipart/form-data" action="<?php echo site_url("user/UserC/validateLogin")?>">
 		   <h3 class="form-signin-heading">Please sign in</h3>
 		   <div class="form-group">
 		    <input name="txtUsername" type="text" class="form-control" placeholder="Username">
@@ -58,7 +63,7 @@
 		   <div class="form-group">
 		    <input type="password" class="form-control" name="txtPassword" placeholder="Password">
 		   </div>
-		   <button class="kafe-btn kafe-btn-mint btn-block" type="submit" name="submit">Sign in</button>
+		   <button class="kafe-btn kafe-btn-mint btn-block" id="btnSubmit" type="submit" name="submit">Sign in</button>
 		   <br/>
 		   <a class="btn btn-dark " href="<?php echo site_url("user/UserC/loadRegister")?>" role="button">Don't have an account yet? Register Here.</a>
 		   <a class="btn btn-dark " href="#generatePasswordModal"  data-toggle="modal" role="button">Forgot your password?</a>
@@ -72,25 +77,21 @@
 				<div class="modal-dialog" style="width:35%;">
 					<div class="modal-content">
 						<div class="modal-body">
-							<div class="card" >
+							<div class="card">
 								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-									<span aria-hidden="true" style="margin:2px 2px 2px 2px;">×</span><span class="sr-only">Close</span>
+									<span aria-hidden="true">×</span><span class="sr-only">Close</span>
 								</button>
-								<div class="card-block" >
-									<form method="post" enctype="multipart/form-data" action="<?= site_url("user/UserC/sendPassword/")?>">
-										<div class="form-group row" style="margin: 5px 20px 5px 20px;"><br><br>
-											<center><label style="color:gray;font-size: 20px;font-family:'Abhaya Libre';">Recover your password<br><h4>Enter your E-mail id below and login using the password sent on your mail.</h4><br>
-											<input type="mail" id="txtUserEmail" name="txtUserEmail" placeholder="Enter your email here" style="width: 100%;height: 10%;border-radius: 5px;" ></label></center>
-										</div><br>
-										<div class="form-group row" style="margin: 5px 20px 5px 20px;">
+								<div class="card-block">
 
-											<center>
-												<button class="kafe-btn kafe-btn-mint btn-block" type="submit" id="btnSend" style="color:white;font-size: 12px;font-family:'Abhaya Libre';" value="Submit">Send</button>
-											</center>
+									<div class="modal-meta-top">
+										<center><h2></h2></center>
+									</div>
+											
+												<div class="form-group row" style="margin: 5px 20px 5px 20px;">
+													<input type="mail" name="txtUserEmail">
+												</div>
+
 										</div>
-
-									</form>
-								</div>
 							</div>
 						</div><!--/ modal-body -->
 					</div><!--/ modal-content -->
@@ -100,14 +101,19 @@
      <!-- ==============================================
 	 Scripts
 	 =============================================== -->
-
-
 	<script src="<?php echo base_url()?>resources/user/assets/js/jquery.min.js"></script>
 	<script src="<?php echo base_url()?>resources/user/assets/js/bootstrap.min.js"></script>
 	<script src="<?php echo base_url()?>resources/user/assets/js/base.js"></script>
-	
-
-
+	<script>
+		<?php
+			if(isset($error) && !empty($error))
+			{
+				?>
+					alert("<?=$error?>");
+				<?php
+			}
+		?>
+	</script>
   </body>
 
 <!-- Mirrored from themashabrand.com/templates/Fluffs/photo_login.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 03 May 2020 15:31:05 GMT -->

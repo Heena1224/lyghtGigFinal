@@ -107,12 +107,12 @@ class UserM extends CI_Model
 			return 1;
 		else return 0;
 	}
-	public function getTypeData($uid)
+	public function getTypeData($uid=null)
 	{
 		$this->db->select("t.type_id,t.type_name");
-		$this->db->from("tbl_user_type as ut");
-		$this->db->join("tbl_type as t","t.type_id=ut.type_id");
-		$this->db->where("ut.user_id",$uid);
+		$this->db->from("tbl_type as t");
+		if($uid!=null)
+		$this->db->where("t.type_id IN (select ut.type_id from tbl_user_type as ut where ut.user_id='".$uid."')");
 		$x=$this->db->get();
 		if($x->num_rows()>0)
 			return $x->result();
@@ -201,7 +201,7 @@ class UserM extends CI_Model
 		else return null;
 	}
 
-	public function changeEditProfile($uid,$data,$email)
+	public function changeEditProfile($uid,$data,$email,$types)
 	{
 		//return $this->db->where($uid)->update("tbl_user_profile",$data);
 		$this->db->set("user_fname",$data["user_fname"]);
@@ -211,9 +211,18 @@ class UserM extends CI_Model
 		$this->db->where("user_id",$uid);
 		$this->db->update("tbl_user_profile");
 
-		$this->db->set("user_email",$email["user_email"]);
 		$this->db->where("user_id",$uid);
-		$this->db->update("tbl_user_login");
+		$this->db->delete("tbl_user_type");
+
+		foreach($types as $t)
+		{
+			$data=array(
+				"user_id"=>$uid,
+				"type_id"=>$t
+			);
+			if($t!="")
+			$this->db->insert("tbl_user_type",$data);
+		}
 	}
 	/*to register*/
 	public function checkUniqueUsername($un)
@@ -273,21 +282,6 @@ class UserM extends CI_Model
 		return $temp["user_pwd"];
 		
 	}
-
-	public function sendPassword($data)
-	{
-		$letters="ABCDEFGHIJKLMOPQRSTEabcXZYdefghijklmonxzy";
-		$len=strlen($letters);
-		$temp=array(
-			"user_pwd"=>"".$letters[rand(0,$len-1)].rand(10,99).$letters[rand(0,$len-1)].rand(100,999)
-		);
-		$this->db->set("user_pwd",$temp["user_pwd"]);
-		$this->db->where("user_email",$data["user_email"]);
-		$this->db->update("tbl_user_login");
-		
-		return $temp["user_pwd"];
-
-	}
 	public function createDefaultAlbum($uid)
 	{
 		$albumData=array(
@@ -328,6 +322,41 @@ class UserM extends CI_Model
 				return $x->result();
 		}
 		else return null;
+	}
+	public function searchUsers($key)
+	{
+		$this->db->select();
+		$this->db->from("tbl_user_login as tul");
+		$this->db->where("tul.user_status","Enabled");
+		$this->db->join("tbl_user_profile as tup","tup.user_id=tul.user_id");		
+		$this->db->like("tul.username",$key);
+		$this->db->or_like("tup.user_fname",$key);
+		$this->db->or_like("tup.user_lname",$key);
+		$x=$this->db->get();
+		if($x->num_rows()>0)
+		{
+			$x=$x->result();
+			foreach($x as $key){
+
+			}
+		}
+		else return null;
+	}
+	public function checkSubmissionID($sid,$cid)
+	{
+		$this->db->where("submission_id",$sid);
+		$this->db->where("competition_id",$cid);
+		$x=$this->db->get("tbl_submission");
+		if($x->num_rows()>0)
+			return true;
+		else return false;
+	}
+	public function addWinners($wid,$rid,$cid)
+	{
+		$this->db->set("winner_id",$wid);
+		$this->db->set("runner_id",$rid);
+		$this->db->where("competition_id",$cid);
+		$this->db->update("tbl_competition");
 	}
 	public function createAlbum($data)
 	{
@@ -590,12 +619,15 @@ class UserM extends CI_Model
 
 	}
 
-	function getCatData($pid)
+	function getCatData($pid=null)
 	{
 		$this->db->select();
 		$this->db->from("tbl_category as tc");
-		$this->db->join("tbl_photo_category as tpc","tc.cat_id=tpc.cat_id");
-		$this->db->where("tpc.photo_id",$pid);
+		if($pid!=null)
+		{
+			$this->db->join("tbl_photo_category as tpc","tc.cat_id=tpc.cat_id");
+			$this->db->where("tpc.photo_id",$pid);	
+		}
 		$this->db->where("tc.cat_status","active");
 		$x=$this->db->get();
 		if($x->num_rows()>0)
@@ -605,7 +637,5 @@ class UserM extends CI_Model
 		else
 			return null;
 	}
-
-
 }
 ?>

@@ -78,7 +78,7 @@ class PhotoM extends CI_Model
 		$x=$this->db->get("tbl_album")->result()[0];
 		return $x->album_id;
 	}
-	public function upload($data)
+	public function upload($data,$cats=null)
 	{
 		if($data['album_id']==-1)
 		{
@@ -87,23 +87,27 @@ class PhotoM extends CI_Model
 			echo $aid;
 		}
 		$this->db->insert("tbl_photo",$data);
+		$pid=$this->db->insert_id();
+		if($cats!=null)
+		{
+			foreach($cats as $c)
+			{
+				$d=array(
+					"photo_id"=>$pid,
+					"cat_id"=>$c
+				);
+				$this->db->insert("tbl_photo_category",$d);
+			}
+		}
 
 	}
-	public function getAllPhotoData($sortOption=-1)
+	public function getAllPhotoData($sortOption=-1,$cats=null)
 	{
-
-		$this->db->select("tp.*,COUNT(tl.user_id) as totalLikes");
+/*		$this->db->select();
 		$this->db->from("tbl_photo as tp");
-		$this->db->join("tbl_likes as tl","tl.photo_id=tp.photo_id");
-		$this->db->where("tp.photo_status","active");
+		
 		$this->db->where("tp.photo_type","public");
-		$this->db->group_by("tp.photo_id");
-		if($sortOption==1)
-		$this->db->order_by("totalLikes","desc");
-		if($sortOption==2)
-		$this->db->order_by("tp.photo_date","desc");
-		if($sortOption==3)
-		$this->db->order_by("tp.photo_date");
+		
 		$x=$this->db->get();
 		if($x->num_rows()>0)
 		{
@@ -117,7 +121,91 @@ class PhotoM extends CI_Model
 			}
 			return $x;
 		}
-		else return null;
+		else return null;*/
+
+/*			$this->db->select("tl.photo_id,COUNT(tl.user_id) as totalLikes,tp.*");
+			$this->db->from("tbl_likes as tl");
+			$this->db->group_by("tl.photo_id");
+			if($sortOption==1)
+			$this->db->order_by("totalLikes","desc");
+			if($sortOption==2)
+			$this->db->order_by("tp.photo_date","desc");
+			if($sortOption==3)
+			$this->db->order_by("tp.photo_date");
+			$this->db->join("tbl_photo as tp","tp.photo_id=tl.photo_id");
+			$x=$this->db->get();
+			if($x->num_rows()>0)
+			{
+				return $x->result();
+			}
+			else return null;*/
+
+			if($cats==null){
+				$this->db->select("tp.*,COUNT(tl.user_id) as totalLikes");
+				$this->db->from("tbl_photo as tp");
+				$this->db->join("tbl_likes as tl","tl.photo_id=tp.photo_id");
+				//print_r($cats);
+	
+				$this->db->where("tp.photo_status","active");
+				$this->db->where("tp.photo_type","public");
+	
+				$this->db->group_by("tp.photo_id");			
+				if($sortOption==1)
+				$this->db->order_by("totalLikes","desc");
+				if($sortOption==2)
+				$this->db->order_by("tp.photo_date","desc");
+				if($sortOption==3)
+				$this->db->order_by("tp.photo_date");
+				$x=$this->db->get();
+				if($x->num_rows()>0)
+				{
+					$x=$x->result();
+					foreach($x as $key)
+					{
+						$key->photoOwnerData=$this->getUserData($key->user_id);
+						$key->categoryData=$this->getCatData($key->photo_id);
+						$key->totalComments=$this->getCommentsCount($key->photo_id);
+						$key->isLiked=$this->checkLike($key->photo_id);
+					}
+					return $x;
+				}
+				else return null;	
+			}
+			else{
+				$this->db->select("tp.*,,COUNT(tl.user_id) as totalLikes");
+				$this->db->from("tbl_photo_category as tpc");
+				foreach($cats as $c)
+				{
+					$this->db->or_where("tpc.cat_id",$c);
+				}
+				$this->db->join("tbl_photo as tp","tp.photo_id=tpc.photo_id");
+				$this->db->where("tp.photo_status","active");
+				$this->db->where("tp.photo_type","public");
+				$this->db->join("tbl_likes as tl","tl.photo_id=tp.photo_id and tpc.photo_id=tl.photo_id");
+				$this->db->group_by("tp.photo_id");			
+				if($sortOption==1)
+				$this->db->order_by("totalLikes","desc");
+				if($sortOption==2)
+				$this->db->order_by("tp.photo_date","desc");
+				if($sortOption==3)
+				$this->db->order_by("tp.photo_date");
+				$x=$this->db->get();
+				if($x->num_rows()>0)
+				{
+					$x=$x->result();
+					foreach($x as $key)
+					{
+						$key->photoOwnerData=$this->getUserData($key->user_id);
+						$key->categoryData=$this->getCatData($key->photo_id);
+						$key->totalComments=$this->getCommentsCount($key->photo_id);
+						$key->isLiked=$this->checkLike($key->photo_id);
+					}
+					//print_r($x);
+					return $x;
+				}
+				else return null;
+			}
+
 			
 	}
 	public function checkLike($pid)
@@ -201,11 +289,17 @@ class PhotoM extends CI_Model
 
 	}
 
-	public function getCompetitionData()
+	public function getCompetitionData($lim=null)
 	{
+		date_default_timezone_set("Asia/Kolkata");
+		$cd=date("Y-m-d h:i:s");
 		$this->db->select("c.*");
 		$this->db->from("tbl_competition as c");
-		$this->db->order_by("competition_id","desc");
+		if($lim!=null)
+		$this->db->where("c.start_date>'".$cd."'");
+		$this->db->order_by("c.start_date","desc");
+		if($lim!=null)
+		$this->db->limit($lim);
 		$x=$this->db->get();
 		if($x->num_rows()>0)
 		{
@@ -223,6 +317,7 @@ class PhotoM extends CI_Model
 		$this->db->from("tbl_competition as c");
 		
 		$this->db->where("c.competition_id",$contest_id);
+		
 		$x=$this->db->get();
 		if($x->num_rows()>0)
 		{
@@ -248,7 +343,7 @@ class PhotoM extends CI_Model
 
 			}
 			$x->totalParticipants=$this->countParticipants($contest_id);
-			$x->totalPhotos=$this->countPhotos($contest_id);
+			//$x->totalPhotos=$this->countPhotos($contest_id,$photo_id);
 			return $x;
 		}
 		else
@@ -256,17 +351,24 @@ class PhotoM extends CI_Model
 			return null;
 		}
 	}
-	public function countPhotos($contest_id)
+	public function getSubmissionData($cid)
 	{
-		$this->db->where("competition_id",$contest_id);
-		$x=$this->db->get("tbl_submission");
-		return $x->num_rows();
+		$this->db->select("ts.*,tp.competition_id,tup.user_id,tup.user_fname,tup.user_lname,tup.user_profile_pic,tup.user_cover_pic");
+		$this->db->from("tbl_submission as ts");
+		$this->db->join("tbl_participant as tp","tp.participant_id=ts.participant_id");
+		$this->db->join("tbl_user_profile as tup","tup.user_id=tp.user_id");
+		$this->db->where("tp.competition_id",$cid);
+		$x=$this->db->get();
+		if($x->num_rows()>0)
+		{
+			return $x->result();
+		}
+		else return null;
 	}
-	public function countParticipants($contest_id)
+	public function countParticipants($cid)
 	{
-		$this->db->where("competition_id",$contest_id);
-		$x=$this->db->get("tbl_participant");
-		return $x->num_rows();
+		$this->db->where("competition_id",$cid);
+		return $this->db->get("tbl_participant")->num_rows();
 	}
 
 	public function createContest($data)
@@ -307,17 +409,84 @@ class PhotoM extends CI_Model
 	{
 		$this->db->inserT("tbl_submission",$data);
 	}
-	public function getContestPhotos($contest_id)
+	public function getUserContestData($uid)
 	{
-		$this->db->where("competition_id",$contest_id);
+		$this->db->where("user_id",$uid);
+		$x=$this->db->get("tbl_competition");
+		if($x->num_rows()>0)
+		{
+			$x=$x->result();
+			foreach($x as $contest)
+			{
+				$contest->participantData=$this->getParticipantData($contest->competition_id);
+				$contest->totalParticipants=$this->countParticipants($contest->competition_id);
+				$contest->totalSubmissions=$this->countSubmissions($contest->competition_id);
+				
+			}
+			return $x;
+		}
+		else return null;
+	}
+	public function countSubmissions($cid)
+	{
+		$this->db->select();
+		$this->db->from("tbl_participant as tp");
+		$this->db->where("tp.competition_id",$cid);
+		$this->db->join("tbl_submission as ts","ts.participant_id=tp.participant_id");
+		$x=$this->db->get();
+		if($x->num_rows()>0)
+			return $x->num_rows();
+		else return 0;
+	}
+	public function checkSubmission($uid,$cid)
+	{
+		$this->db->select();
+		$this->db->where("tp.user_id",$uid);
+		$this->db->where("tp.competition_id",$cid);
+		$this->db->from("tbl_participant as tp");
+		$this->db->join("tbl_submission as ts","ts.participant_id=tp.participant_id");
+		$x=$this->db->get();
+		if($x->num_rows()>0)
+			return 1;
+		else return 0;
+	}
+	public function getParticipantData($cid)
+	{
+		$this->db->select("tp.participant_id,tp.competition_id,tul.user_id,tul.username,tup.user_profile_pic,tup.user_cover_pic");
+		$this->db->from("tbl_participant as tp");
+		$this->db->join("tbl_user_login as tul","tul.user_id=tp.user_id");
+		$this->db->join("tbl_user_profile as tup","tup.user_id=tul.user_id and tup.user_id=tp.user_id");
+		$this->db->where("tp.competition_id",$cid);
+		$x=$this->db->get();
+		if($x->num_rows()>0)
+		{
+			$x=$x->result();
+			foreach($x as $key)
+			{
+				$key->submissionData=$this->getUserSubmissionData($key->participant_id);
+			}
+			return $x;
+		}
+		else{
+			return null;
+		}
+
+	}
+	public  function getUserSubmissionData($pid)
+	{
+		$this->db->where("participant_id",$pid);
 		$x=$this->db->get("tbl_submission");
 		if($x->num_rows()>0)
 		{
-			return $x->result();
+			return $x->result()[0];
 		}
-		else
-		{
-			return null;
-		}
+		else return null;
 	}
+	// public function countPhotos($contest_id,$pid)
+	// {
+	// 	$this->db->where("competition_id",$contest_id);
+	// 	$this->db->where("photo_path",$pid);
+	// 	$x=$this->db->get("tbl_submission");
+	// 	return $x->num_rows();
+	// }
 }

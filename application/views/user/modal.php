@@ -95,8 +95,7 @@
 	             					<a href="#"><img class="img-responsive img-circle" src="<?php echo base_url(); ?>resources/user/uploadPhotos/profile/<?=$userData->user_profile_pic?>" alt="Image"/></a>
 	             					<strong><a href="<?=site_url('user/HomeC/loadProfile/')?><?=$userData->username?>"><?= $userData->username?></a></strong>
 	             					<span id="dt"></span><br/>
-			     					<a href="#" class="kafe kafe-btn-mint-small"><i class="fa fa-check-square"></i> Following</a>
-	            				</div><!--/ img-poster -->
+			     				</div><!--/ img-poster -->
 			  
 	            				<ul class="img-comment-list" id="commentBody">
 

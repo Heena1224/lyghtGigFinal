@@ -19,7 +19,132 @@
 				overflow: hidden;
 			}
 		</style>
-		
+				<style>
+			body {
+				font-family: "Roboto", sans-serif;
+			}
+
+			.select-wrapper {
+				margin: auto;
+				max-width: 600px;
+				width: calc(100% - 40px);
+			}
+
+			.select-pure__select {
+				align-items: center;
+				background: #f9f9f8;
+				border-radius: 4px;
+				border: 1px solid rgba(0, 0, 0, 0.15);
+				box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+				box-sizing: border-box;
+				color: #363b3e;
+				cursor: pointer;
+				display: flex;
+				font-size: 16px;
+				font-weight: 500;
+				justify-content: left;
+				min-height: 44px;
+				padding: 5px 10px;
+				position: relative;
+				transition: 0.2s;
+				width: 100%;
+			}
+
+			.select-pure__options {
+				border-radius: 4px;
+				border: 1px solid rgba(0, 0, 0, 0.15);
+				box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+				box-sizing: border-box;
+				color: #363b3e;
+				display: none;
+				left: 0;
+				max-height: 221px;
+				overflow-y: scroll;
+				position: absolute;
+				top: 50px;
+				width: 100%;
+				z-index: 5;
+			}
+
+			.select-pure__select--opened .select-pure__options {
+				display: block;
+			}
+
+			.select-pure__option {
+				background: #fff;
+				border-bottom: 1px solid #e4e4e4;
+				box-sizing: border-box;
+				height: 44px;
+				line-height: 25px;
+				padding: 10px;
+			}
+
+			.select-pure__option--disabled {
+				color: #e4e4e4;
+			}
+
+			.select-pure__option--selected {
+				color: #e4e4e4;
+				cursor: initial;
+				pointer-events: none;
+			}
+
+			.select-pure__option--hidden {
+				display: none;
+			}
+
+			.select-pure__selected-label {
+				align-items: 'center';
+				background: #5e6264;
+				border-radius: 4px;
+				color: #fff;
+				cursor: initial;
+				display: inline-flex;
+				justify-content: 'center';
+				margin: 5px 10px 5px 0;
+				padding: 3px 7px;
+			}
+
+			.select-pure__selected-label:last-of-type {
+				margin-right: 0;
+			}
+
+			.select-pure__selected-label i {
+				cursor: pointer;
+				display: inline-block;
+				margin-left: 7px;
+			}
+
+			.select-pure__selected-label img {
+				cursor: pointer;
+				display: inline-block;
+				height: 18px;
+				margin-left: 7px;
+				width: 14px;
+			}
+
+			.select-pure__selected-label i:hover {
+				color: #e4e4e4;
+			}
+
+			.select-pure__autocomplete {
+				background: #f9f9f8;
+				border-bottom: 1px solid #e4e4e4;
+				border-left: none;
+				border-right: none;
+				border-top: none;
+				box-sizing: border-box;
+				font-size: 16px;
+				outline: none;
+				padding: 10px;
+				width: 100%;
+			}
+
+			.select-pure__placeholder--hidden {
+				display: none;
+			}
+    	</style>
+
   </head>
 
 <body>
@@ -78,6 +203,13 @@
 				<input type="radio" name="radType" value="hidden"><span style="font-size: 22px;font-family: 'Abhaya Libre';margin-right: 80px;">Add as a private photo(No one can see it except for you)</span>
 				<input type="radio" name="radType" value="public" checked><span style="font-size: 22px;font-family: 'Abhaya Libre';">Add as a public photo</span>
 		</div>
+		<div class="col-lg-12">
+			<input type="text" id="hiddenTypes" name="types" style="display:none;" value="1">
+			<label style="color:gray;font-size: 20px;font-family:'Abhaya Libre';">Add category</label>
+			<span class="autocomplete-select"></span>	
+			
+		<br>			
+		</div>
 	    <div class="col-lg-12">  	
 	     <div class="box">			
 		   <textarea class="form-control no-border" id="txtCap" rows="3" placeholder="Caption here..." style="font-size: 20px;"></textarea>
@@ -122,7 +254,7 @@
 	<script src="<?=base_url()?>resources/user/assets/js/cropper.js"></script>
 	<script>
 
-		    function each(arr, callback) {
+			function each(arr, callback) {
 				var length = arr.length;
 				var i;
 
@@ -134,7 +266,7 @@
 			}	
 			var image = document.querySelector('#image');
 		var previews = document.querySelectorAll('.preview');
-      	var previewReady = false;      
+		var previewReady = false;      
 		var cropper = new Cropper(image, {
 			dragMode: 'move',
 			aspectRatio: 10 / 9,
@@ -147,57 +279,57 @@
 			cropBoxResizable: false,
 			toggleDragModeOnDblclick: false,
 			ready: function () {
-            var clone = this.cloneNode();
+			var clone = this.cloneNode();
 
-            clone.className = '';
-            clone.style.cssText = (
-              'display: block;' +
-              'width: 100%;' +
-              'min-width: 0;' +
-              'min-height: 0;' +
-              'max-width: none;' +
-              'max-height: none;'
-            );
+			clone.className = '';
+			clone.style.cssText = (
+				'display: block;' +
+				'width: 100%;' +
+				'min-width: 0;' +
+				'min-height: 0;' +
+				'max-width: none;' +
+				'max-height: none;'
+			);
 
-            each(previews, function (elem) {
-              elem.appendChild(clone.cloneNode());
-            });
-            previewReady = true;
-          },
+			each(previews, function (elem) {
+				elem.appendChild(clone.cloneNode());
+			});
+			previewReady = true;
+			},
 
-          crop: function (event) {
-            if (!previewReady) {
-              return;
-            }
+			crop: function (event) {
+			if (!previewReady) {
+				return;
+			}
 
-            var data = event.detail;
-            var cropper = this.cropper;
-            var imageData = cropper.getImageData();
-            var previewAspectRatio = data.width / data.height;
+			var data = event.detail;
+			var cropper = this.cropper;
+			var imageData = cropper.getImageData();
+			var previewAspectRatio = data.width / data.height;
 			console.log(cropper.getData());
-            each(previews, function (elem) {
-              var previewImage = elem.getElementsByTagName('img').item(0);
-              var previewWidth = elem.offsetWidth;
-              var previewHeight = previewWidth / previewAspectRatio;
-              var imageScaledRatio = data.width / previewWidth;
+			each(previews, function (elem) {
+				var previewImage = elem.getElementsByTagName('img').item(0);
+				var previewWidth = elem.offsetWidth;
+				var previewHeight = previewWidth / previewAspectRatio;
+				var imageScaledRatio = data.width / previewWidth;
 
-              elem.style.height = previewHeight + 'px';
-              previewImage.style.width = imageData.naturalWidth / imageScaledRatio + 'px';
-              previewImage.style.height = imageData.naturalHeight / imageScaledRatio + 'px';
-              previewImage.style.marginLeft = -data.x / imageScaledRatio + 'px';
-              previewImage.style.marginTop = -data.y / imageScaledRatio + 'px';
-            });
-          },
+				elem.style.height = previewHeight + 'px';
+				previewImage.style.width = imageData.naturalWidth / imageScaledRatio + 'px';
+				previewImage.style.height = imageData.naturalHeight / imageScaledRatio + 'px';
+				previewImage.style.marginLeft = -data.x / imageScaledRatio + 'px';
+				previewImage.style.marginTop = -data.y / imageScaledRatio + 'px';
+			});
+			},
 		});
 		let loadFile=function(event)
 		{
 			let image=document.getElementById("image");
-                image.src=URL.createObjectURL(event.target.files[0]);
+				image.src=URL.createObjectURL(event.target.files[0]);
 			if(cropper)
 			{
 				cropper.destroy();
 			}
-      		previewReady = false;      
+			previewReady = false;      
 			cropper = new Cropper(image, {
 			dragMode: 'move',
 			aspectRatio: 10 / 9,
@@ -210,47 +342,47 @@
 			cropBoxResizable: false,
 			toggleDragModeOnDblclick: false,
 			ready: function () {
-            var clone = this.cloneNode();
+			var clone = this.cloneNode();
 
-            clone.className = '';
-            clone.style.cssText = (
-              'display: block;' +
-              'width: 100%;' +
-              'min-width: 0;' +
-              'min-height: 0;' +
-              'max-width: none;' +
-              'max-height: none;'
+			clone.className = '';
+			clone.style.cssText = (
+				'display: block;' +
+				'width: 100%;' +
+				'min-width: 0;' +
+				'min-height: 0;' +
+				'max-width: none;' +
+				'max-height: none;'
 			);
 			$(".preview img").remove();
-            each(previews, function (elem) {
-              elem.appendChild(clone.cloneNode());
-            });
-            previewReady = true;
-          },
+			each(previews, function (elem) {
+				elem.appendChild(clone.cloneNode());
+			});
+			previewReady = true;
+			},
 
-          crop: function (event) {
-            if (!previewReady) {
-              return;
-            }
+			crop: function (event) {
+			if (!previewReady) {
+				return;
+			}
 
-            var data = event.detail;
-            var cropper = this.cropper;
-            var imageData = cropper.getImageData();
-            var previewAspectRatio = data.width / data.height;
+			var data = event.detail;
+			var cropper = this.cropper;
+			var imageData = cropper.getImageData();
+			var previewAspectRatio = data.width / data.height;
 
-            each(previews, function (elem) {
-              var previewImage = elem.getElementsByTagName('img').item(0);
-              var previewWidth = elem.offsetWidth;
-              var previewHeight = previewWidth / previewAspectRatio;
-              var imageScaledRatio = data.width / previewWidth;
+			each(previews, function (elem) {
+				var previewImage = elem.getElementsByTagName('img').item(0);
+				var previewWidth = elem.offsetWidth;
+				var previewHeight = previewWidth / previewAspectRatio;
+				var imageScaledRatio = data.width / previewWidth;
 
-              elem.style.height = previewHeight + 'px';
-              previewImage.style.width = imageData.naturalWidth / imageScaledRatio + 'px';
-              previewImage.style.height = imageData.naturalHeight / imageScaledRatio + 'px';
-              previewImage.style.marginLeft = -data.x / imageScaledRatio + 'px';
-              previewImage.style.marginTop = -data.y / imageScaledRatio + 'px';
-            });
-          },
+				elem.style.height = previewHeight + 'px';
+				previewImage.style.width = imageData.naturalWidth / imageScaledRatio + 'px';
+				previewImage.style.height = imageData.naturalHeight / imageScaledRatio + 'px';
+				previewImage.style.marginLeft = -data.x / imageScaledRatio + 'px';
+				previewImage.style.marginTop = -data.y / imageScaledRatio + 'px';
+			});
+			},
 		});
 		};
 		$("#frmUploadPhoto").submit(function(e){
@@ -267,6 +399,8 @@
 				formData.append('cropData',JSON.stringify(cropData));
 				formData.append('album_id',$("#albumDropdown").val());
 				formData.append('photo_type',photoType);
+				formData.append('cats',customIconMulti.value());
+				
 				if((Math.round(size/1024))<5120)
 				{
 					$.ajax({
@@ -309,6 +443,52 @@
 
 
 	</script>
+		<script src="<?=base_url()?>resources/shared/bundle.min.js"></script>
+	<script>
+		var customIcon = document.createElement('img');
+		customIcon.src = '<?=base_url()?>resources/shared/icon.svg';
+		var customIconMulti = new SelectPure(".autocomplete-select", {
+		options: [
+			<?php
+				if($catData!=null)
+				{
+					foreach($catData as $key)
+					{
+						?>
+						{
+							label: "<?=$key->cat_name?>",
+							value: "<?=$key->cat_id?>",
+						},
+						<?php
+					}
+				}	
+			?>
+		],
+		multiple: true,
+		autocomplete:true,
+		inlineIcon: customIcon,
+		onChange: value => { console.log(value);},
+		classNames: {
+			select: "select-pure__select",
+			dropdownShown: "select-pure__select--opened",
+			multiselect: "select-pure__select--multiple",
+			label: "select-pure__label",
+			placeholder: "select-pure__placeholder",
+			dropdown: "select-pure__options",
+			option: "select-pure__option",
+			autocompleteInput: "select-pure__autocomplete",
+			selectedLabel: "select-pure__selected-label",
+			selectedOption: "select-pure__option--selected",
+			placeholderHidden: "select-pure__placeholder--hidden",
+			optionHidden: "select-pure__option--hidden",
+		},
+		});
+		var resetCustomMulti = function() {
+		customIconMulti.reset();
+		};
+
+	</script>	
+
 	<!-- JQuery -->
 
   </body>
